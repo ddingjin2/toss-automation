@@ -26,8 +26,7 @@ def test_ti_web_053_home_login_entry_navigates_to_signin(page, test_settings):
         timeout=3_000,
         description="login entry",
     )
-    if not clicked:
-        pytest.skip("로그인 진입점을 현재 공개 DOM에서 확인할 수 없음")
+    assert clicked, "BVT login entry is not available on the public home page"
 
     expect(page).to_have_url(re.compile(r"/signin"))
     expect_any_visible([LoginPage(page, test_settings.base_url).app_login_heading], timeout=5_000)
@@ -64,8 +63,7 @@ def test_ti_web_055_qr_login_tab_renders_qr_instruction(page, test_settings):
     login = LoginPage(page, test_settings.base_url)
     login.open()
 
-    if not login.select_qr_login():
-        pytest.skip("QR코드 로그인 탭을 현재 로그인 화면에서 확인할 수 없음")
+    assert login.select_qr_login(), "BVT QR login tab is not available on signin page"
 
     expect_any_visible([login.qr_instruction], timeout=3_000)
     assert page.locator("img").count() >= 1
@@ -83,8 +81,7 @@ def test_ti_web_056_app_less_sms_login_form_renders(page, test_settings):
     login = LoginPage(page, test_settings.base_url)
     login.open()
 
-    if not login.select_app_less_login():
-        pytest.skip("토스 앱 없이 로그인하기 진입점을 현재 로그인 화면에서 확인할 수 없음")
+    assert login.select_app_less_login(), "BVT app-less login entry is not available"
 
     expect_any_visible([login.sms_login_heading], timeout=3_000)
     expect_any_visible([login.carrier_button], timeout=3_000)
@@ -104,8 +101,7 @@ def test_ti_web_057_empty_sms_auth_request_fails_safely(page, test_settings):
     login = LoginPage(page, test_settings.base_url)
     login.open()
 
-    if not login.select_app_less_login():
-        pytest.skip("토스 앱 없이 로그인하기 진입점을 현재 로그인 화면에서 확인할 수 없음")
+    assert login.select_app_less_login(), "BVT app-less login entry is not available"
 
     button = login.auth_code_request_button.filter(visible=True).first
     expect(button).to_be_visible()
@@ -139,8 +135,7 @@ def test_ti_web_058_browser_back_from_signin_restores_home(page, test_settings):
         timeout=3_000,
         description="login entry",
     )
-    if not clicked:
-        pytest.skip("로그인 진입점을 현재 공개 DOM에서 확인할 수 없음")
+    assert clicked, "BVT login entry is not available on the public home page"
 
     expect(page).to_have_url(re.compile(r"/signin"))
     page.go_back(wait_until="domcontentloaded")
@@ -176,8 +171,7 @@ def test_ti_web_060_account_entry_routes_unauthenticated_user_to_login_context(p
     home = HomePage(page, test_settings.base_url)
     home.open()
 
-    if not home.go_to_account():
-        pytest.skip("내 계좌 공개 진입점을 현재 DOM에서 확인할 수 없음")
+    assert home.go_to_account(), "BVT account entry is not available on the public home page"
 
     expect_any_visible(
         [

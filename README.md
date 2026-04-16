@@ -48,6 +48,7 @@ tossinvest-ui-tests/
 
 - Test strategy: `docs/test_strategy.md`
 - Test case specification: `docs/test_case_specification.md`
+- Feedback resolution: `docs/feedback_resolution.md`
 - Test case source YAML: `test_cases/tossinvest_public_cases.yaml`
 
 ## Current BVT Status

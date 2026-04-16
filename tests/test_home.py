@@ -44,8 +44,7 @@ def test_account_entry_guides_user_to_auth_or_account_context(page, test_setting
     home = HomePage(page, test_settings.base_url)
     home.open()
 
-    if not home.go_to_account():
-        pytest.skip("내 계좌 공개 진입점이 현재 DOM에서 확인되지 않음")
+    assert home.go_to_account(), "BVT account entry is not available on the public home page"
 
     expect_any_visible(
         [

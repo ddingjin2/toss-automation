@@ -33,11 +33,9 @@ def expect_any_text(page: Page, patterns: Iterable[str], timeout: int = 3_000) -
 def open_search_from_home(page: Page, base_url: str) -> SearchPage:
     home = HomePage(page, base_url)
     home.open()
-    if not home.open_search():
-        pytest.skip("검색 입력 UI가 현재 공개 DOM에서 확인되지 않음")
+    assert home.open_search(), "BVT search entry is not available on the public home page"
     search = SearchPage(page, base_url)
-    if search.active_input() is None:
-        pytest.skip("검색 입력 필드를 사용할 수 없음")
+    assert search.active_input() is not None, "BVT search input is not visible or usable"
     return search
 
 
@@ -93,8 +91,7 @@ def test_ti_web_039_search_input_accepts_user_query(page, test_settings):
 @allure.story("TI-WEB-040")
 def test_ti_web_040_known_stock_search_returns_basic_response(page, test_settings):
     search = open_search_from_home(page, test_settings.base_url)
-    if not search.search(test_settings.default_stock_query):
-        pytest.skip("검색 입력 필드를 사용할 수 없음")
+    assert search.search(test_settings.default_stock_query), "BVT search input is not usable"
 
     expect_any_visible(
         [
@@ -115,8 +112,7 @@ def test_ti_web_041_account_entry_does_not_expose_private_account_data(page, tes
     home = HomePage(page, test_settings.base_url)
     home.open()
 
-    if not home.go_to_account():
-        pytest.skip("내 계좌 공개 진입점이 현재 DOM에서 확인되지 않음")
+    assert home.go_to_account(), "BVT account entry is not available on the public home page"
 
     expect_any_text(page, ["로그인|인증|토스|앱|계좌|QR"], timeout=3_000)
     for private_keyword in ["평가금액", "계좌번호", "주문가능", "예수금"]:
@@ -181,8 +177,9 @@ def test_ti_web_045_navigation_round_trip_restores_home(page, test_settings):
     home = HomePage(page, test_settings.base_url)
     home.open()
 
-    if not (home.go_to_feed() or home.go_to_stock_picker()):
-        pytest.skip("피드/주식 골라보기 공개 메뉴를 현재 DOM에서 클릭할 수 없음")
+    assert (
+        home.go_to_feed() or home.go_to_stock_picker()
+    ), "BVT public navigation entry is not clickable"
 
     page.go_back(wait_until="domcontentloaded")
     expect_any_text(page, ["홈", "실시간 차트|지수 목록|주식 골라보기"], timeout=5_000)
@@ -210,8 +207,7 @@ def test_ti_web_046_footer_compliance_copy_is_visible(page, test_settings):
 def test_ti_web_047_unknown_stock_search_fails_safely(page, test_settings):
     search = open_search_from_home(page, test_settings.base_url)
     query = "ZZZ_NO_SUCH_STOCK_987654"
-    if not search.search(query):
-        pytest.skip("검색 입력 필드를 사용할 수 없음")
+    assert search.search(query), "BVT search input is not usable"
 
     empty_or_query = wait_for_any_visible(
         [
@@ -236,8 +232,9 @@ def test_ti_web_047_unknown_stock_search_fails_safely(page, test_settings):
 @allure.story("TI-WEB-048")
 def test_ti_web_048_stock_detail_opens_without_application_error(page, test_settings):
     stock = StockDetailPage(page, test_settings.base_url)
-    if not stock.open_via_search(test_settings.default_stock_query):
-        pytest.skip("공개 검색 결과에서 종목 상세로 진입할 수 없음. 서비스 UI 변경 확인 필요")
+    assert stock.open_via_search(
+        test_settings.default_stock_query
+    ), "BVT stock detail path is not reachable from public search"
 
     expect_any_visible(
         [

@@ -15,8 +15,8 @@ class SearchPage(BasePage):
         return [
             self.page.get_by_placeholder(re.compile("검색|종목|주식")),
             self.textbox(re.compile("검색|종목|주식")),
-            self.page.locator("input[type='search']"),
-            self.page.locator("input"),
+            self.page.locator("input[type='search'][data-section-name='검색']"),
+            self.page.locator("input[type='search'][placeholder*='검색']"),
         ]
 
     def active_input(self) -> Locator | None:
@@ -38,7 +38,6 @@ class SearchPage(BasePage):
         candidates = [
             self.page.get_by_role("link", name=re.compile(re.escape(keyword))),
             self.page.locator("a").filter(has_text=re.compile(re.escape(keyword))),
-            self.page.get_by_text(re.compile(re.escape(keyword))),
         ]
         return self.click_first_visible(
             candidates, timeout=3_000, description=f"{keyword} search result"

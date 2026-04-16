@@ -5,6 +5,8 @@ from collections.abc import Iterable
 
 from playwright.sync_api import Locator, Page, TimeoutError
 
+from utils.waits import wait_for_any_visible
+
 
 class BasePage:
     def __init__(self, page: Page, base_url: str):
@@ -38,14 +40,7 @@ class BasePage:
         return self.page.get_by_role("textbox", name=name)
 
     def first_visible(self, locators: Iterable[Locator], timeout: int = 1_500) -> Locator | None:
-        for locator in locators:
-            try:
-                visible_locator = locator.filter(visible=True).first
-                visible_locator.wait_for(state="visible", timeout=timeout)
-                return visible_locator
-            except TimeoutError:
-                continue
-        return None
+        return wait_for_any_visible(locators, timeout=timeout)
 
     def click_first_visible(
         self,

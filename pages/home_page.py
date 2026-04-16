@@ -60,8 +60,8 @@ class HomePage(BasePage):
         return [
             self.page.get_by_placeholder(re.compile("검색|종목|주식")),
             self.textbox(re.compile("검색|종목|주식")),
-            self.page.locator("input[type='search']"),
-            self.page.locator("input"),
+            self.page.locator("input[type='search'][data-section-name='검색']"),
+            self.page.locator("input[type='search'][placeholder*='검색']"),
         ]
 
     def go_to_feed(self) -> bool:

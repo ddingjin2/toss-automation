@@ -65,12 +65,14 @@ These require staging support: test account, test identity data, deterministic O
 ## Flaky Prevention
 
 - Use role/text-based locators first, CSS only as fallback.
+- Do not fall back to arbitrary `input` elements or plain text clicks for core flows.
 - Keep assertions in tests; keep Page Objects action-oriented.
 - Do not assert exact market prices or list order.
 - Do not use arbitrary sleeps. Wait for DOM readiness and specific visible UI.
 - Isolate browser context per test.
 - Attach screenshot, trace, and video on failure.
-- Mark production-state dependent tests as conditional or staging-required.
+- BVT/smoke critical paths must fail when required entry points disappear.
+- Mark only production-state dependent or optional public UI tests as conditional, skippable, or staging-required.
 
 ## Anti-Patterns
 

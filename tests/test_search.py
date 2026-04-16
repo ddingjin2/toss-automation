@@ -18,8 +18,7 @@ def test_search_entry_opens_search_input(page, test_settings):
     home = HomePage(page, test_settings.base_url)
     home.open()
 
-    if not home.open_search():
-        pytest.skip("검색 입력 UI가 현재 공개 DOM에서 확인되지 않음")
+    assert home.open_search(), "P0 search entry is not available on the public home page"
 
     search = SearchPage(page, test_settings.base_url)
     assert search.active_input() is not None
@@ -34,12 +33,10 @@ def test_known_stock_search_returns_relevant_result(page, test_settings):
     home = HomePage(page, test_settings.base_url)
     home.open()
 
-    if not home.open_search():
-        pytest.skip("검색 입력 UI가 현재 공개 DOM에서 확인되지 않음")
+    assert home.open_search(), "BVT search entry is not available on the public home page"
 
     search = SearchPage(page, test_settings.base_url)
-    if not search.search(test_settings.default_stock_query):
-        pytest.skip("검색 입력 필드를 사용할 수 없음")
+    assert search.search(test_settings.default_stock_query), "Search input is not usable"
 
     expect_any_visible(
         [
@@ -58,13 +55,11 @@ def test_unknown_stock_search_keeps_query_or_shows_empty_state(page, test_settin
     home = HomePage(page, test_settings.base_url)
     home.open()
 
-    if not home.open_search():
-        pytest.skip("검색 입력 UI가 현재 공개 DOM에서 확인되지 않음")
+    assert home.open_search(), "Search entry is not available on the public home page"
 
     search = SearchPage(page, test_settings.base_url)
     query = "ZZZ_NO_SUCH_STOCK_987654"
-    if not search.search(query):
-        pytest.skip("검색 입력 필드를 사용할 수 없음")
+    assert search.search(query), "Search input is not usable"
 
     visible_empty_state = wait_for_any_visible(
         [search.no_result_or_empty_state(), page.get_by_text(re.compile(re.escape(query)))],

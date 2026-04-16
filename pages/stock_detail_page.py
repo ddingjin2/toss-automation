@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-from playwright.sync_api import Locator, Page
+from playwright.sync_api import Locator, Page, TimeoutError
 
 from pages.base_page import BasePage
 from pages.home_page import HomePage
@@ -21,6 +21,13 @@ class StockDetailPage(BasePage):
         search = SearchPage(self.page, self.base_url)
         if not search.search(query):
             return False
+        try:
+            self.page.wait_for_url("**/stocks/**", timeout=3_000)
+            return True
+        except TimeoutError:
+            pass
+        if "/stocks/" in self.page.url:
+            return True
         return search.open_first_result(query)
 
     @property
