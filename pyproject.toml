@@ -52,20 +52,3 @@ exclude = [
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
 ignore = ["E501"]
-
-[tool.pytest.ini_options]
-minversion = "8.0"
-addopts = "-ra --strict-markers --alluredir=allure-results"
-testpaths = ["tests"]
-markers = [
-    "bvt: build verification tests for deciding whether a build is regression-ready",
-    "auth: authentication and authorization boundary tests",
-    "login: public login entry and login guidance tests",
-    "smoke: small PR-gate suite for public critical path",
-    "regression: broader UI regression suite",
-    "slow: tests expected to take longer than normal UI checks",
-    "ui: browser-based UI tests",
-    "search: stock search behavior",
-    "quote: quote, chart, and stock detail behavior",
-    "responsive: viewport and layout behavior",
-]

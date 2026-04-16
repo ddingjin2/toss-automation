@@ -1,5 +1,4 @@
 import re
-from collections.abc import Iterable
 
 import allure
 import pytest
@@ -8,26 +7,12 @@ from playwright.sync_api import Page, expect
 from pages.home_page import HomePage
 from pages.search_page import SearchPage
 from pages.stock_detail_page import StockDetailPage
+from utils.assertions import (
+    expect_any_text,
+    expect_no_private_account_data,
+    expect_no_public_error,
+)
 from utils.waits import expect_any_visible, wait_for_any_visible
-
-PUBLIC_ERROR_PATTERNS = [
-    "Application error",
-    "404 Not Found",
-    "500 Internal",
-    "Internal Server Error",
-]
-
-
-def expect_no_public_error(page: Page) -> None:
-    body = page.locator("body")
-    for pattern in PUBLIC_ERROR_PATTERNS:
-        expect(body).not_to_contain_text(pattern)
-
-
-def expect_any_text(page: Page, patterns: Iterable[str], timeout: int = 3_000) -> None:
-    expect_any_visible(
-        [page.get_by_text(re.compile(pattern)) for pattern in patterns], timeout=timeout
-    )
 
 
 def open_search_from_home(page: Page, base_url: str) -> SearchPage:
@@ -115,8 +100,7 @@ def test_ti_web_041_account_entry_does_not_expose_private_account_data(page, tes
     assert home.go_to_account(), "BVT account entry is not available on the public home page"
 
     expect_any_text(page, ["로그인|인증|토스|앱|계좌|QR"], timeout=3_000)
-    for private_keyword in ["평가금액", "계좌번호", "주문가능", "예수금"]:
-        expect(page.locator("body")).not_to_contain_text(private_keyword)
+    expect_no_private_account_data(page)
     expect_no_public_error(page)
 
 
@@ -282,17 +266,24 @@ def test_ti_web_050_desktop_viewport_renders_market_content(page, test_settings)
 @pytest.mark.regression
 @allure.feature("BVT")
 @allure.story("TI-WEB-051")
-def test_ti_web_051_primary_navigation_items_are_clickable(page, test_settings):
+def test_ti_web_051_public_navigation_items_are_clickable(page, test_settings):
     home = HomePage(page, test_settings.base_url)
-    home.open()
 
     for nav_pattern in [
         HomePage.NAV_HOME,
         HomePage.NAV_FEED,
         HomePage.NAV_STOCK_PICKER,
-        HomePage.NAV_ACCOUNT,
     ]:
-        expect_any_visible([home.nav_item(nav_pattern)], timeout=3_000)
+        home.open()
+        nav_item = expect_any_visible([home.nav_item(nav_pattern)], timeout=3_000)
+        nav_item.click()
+        page.wait_for_load_state("domcontentloaded")
+        expect(page.locator("body")).to_be_visible()
+        assert page.url != "about:blank"
+        expect_no_public_error(page)
+
+    home.open()
+    expect_any_visible([home.nav_item(HomePage.NAV_ACCOUNT)], timeout=3_000)
     expect_no_public_error(page)
 
 

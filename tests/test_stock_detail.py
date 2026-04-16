@@ -47,6 +47,7 @@ def test_stock_detail_quote_or_chart_area_is_visible(page, test_settings):
 
 @pytest.mark.ui
 @pytest.mark.quote
+@pytest.mark.optional_public_ui
 @pytest.mark.regression
 @allure.feature("Watchlist")
 def test_watchlist_or_favorite_action_requires_auth_when_publicly_visible(page, test_settings):

@@ -21,8 +21,8 @@
 - BVT 후보 ID: 33개
 - pytest 전체 자동화 테스트: 37개
 - pytest BVT 자동화 테스트: 31개
-- 최근 Chromium headed BVT 실행 결과: `31 passed, 6 deselected`
-- 최근 Chromium 전체 suite 실행 결과: `37 passed`
+- 최근 Chromium BVT 실행 결과: `31 passed, 6 deselected in 86.89s`
+- 최근 Chromium 전체 suite 실행 결과: `37 passed in 96.69s`
 
 ## 자동화 범위
 
@@ -184,7 +184,7 @@ pytest -m bvt --browser chromium --headed
 병렬 실행:
 
 ```bash
-pytest -n auto -m regression
+pytest -n 2 -m regression
 ```
 
 재시도:

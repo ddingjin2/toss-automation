@@ -37,6 +37,9 @@ jobs:
           python -m pip install -e .
           playwright install --with-deps chromium
 
+      - name: Public site health check
+        run: python -c "import urllib.request; urllib.request.urlopen('https://www.tossinvest.com', timeout=10).read(1)"
+
       - name: Run smoke tests
         env:
           BASE_URL: https://www.tossinvest.com
@@ -62,7 +65,7 @@ jobs:
           path: allure-results/
           if-no-files-found: ignore
 
-      - name: Upload failure screenshots
+      - name: Upload failure artifacts
         if: failure()
         uses: actions/upload-artifact@v4
         with:
@@ -104,6 +107,9 @@ jobs:
           python -m pip install -e .
           playwright install --with-deps ${{ matrix.browser }}
 
+      - name: Public site health check
+        run: python -c "import urllib.request; urllib.request.urlopen('https://www.tossinvest.com', timeout=10).read(1)"
+
       - name: Run regression tests
         env:
           BASE_URL: https://www.tossinvest.com
@@ -111,7 +117,7 @@ jobs:
           HEADLESS: "true"
           TRACE_ON_FAILURE: "true"
           VIDEO_ON_FAILURE: "true"
-        run: pytest -m regression -n auto --reruns 1 --reruns-delay 1 --junitxml=test-results/regression-${{ matrix.browser }}.xml
+        run: pytest -m regression -n 2 --reruns 1 --reruns-delay 1 --junitxml=test-results/regression-${{ matrix.browser }}.xml
 
       - name: Upload test results
         if: always()
@@ -129,7 +135,7 @@ jobs:
           path: allure-results/
           if-no-files-found: ignore
 
-      - name: Upload failure screenshots
+      - name: Upload failure artifacts
         if: failure()
         uses: actions/upload-artifact@v4
         with:

@@ -69,3 +69,65 @@ pytest -q tests --browser chromium
 - 로딩 테스트가 이름과 실제 검증에 더 가까워졌습니다.
 
 아직 남은 구조 개선은 있습니다. 다만 현재 목적은 “토스증권 공개 웹 BVT와 초기 regression 기반”이므로, 대규모 구조 변경보다는 suite가 커지는 시점에 단계적으로 진행하는 것이 적절합니다.
+
+## 6. 2차 리뷰 반영 내역
+
+2차 리뷰에서 지적된 항목은 운영 신호에 직접 영향을 주는 항목과 구조 확장 항목으로 나누어 처리했습니다.
+
+### 즉시 수용 및 반영
+
+| 피드백 | 반영 내용 | 관련 파일 |
+|---|---|---|
+| 선택적 공개 UI와 핵심 회귀의 경계가 불명확하다. | 공개 비로그인 세션에서 항상 보장되지 않는 UI는 `optional_public_ui` marker로 격리했습니다. BVT/Smoke 핵심 경로는 계속 실패로 처리합니다. | `pytest.ini`, `tests/test_home.py`, `tests/test_stock_detail.py` |
+| `pyproject.toml`과 `pytest.ini`에 pytest 설정이 중복되어 있다. | pytest 설정은 `pytest.ini`로 단일화하고, `pyproject.toml`에는 패키징/format/lint 설정만 남겼습니다. | `pyproject.toml`, `pytest.ini` |
+| 실패 분석 정보가 screenshot/trace/video 중심이다. | 실패 시 브라우저 console log를 `artifacts/console/`에 저장하고 Allure에 첨부하도록 추가했습니다. | `tests/conftest.py` |
+| 공개 웹 한글 오류 카피를 놓칠 수 있다. | 공통 public error assertion에 한글 오류 패턴을 추가했습니다. | `utils/assertions.py` |
+| `TI-WEB-051`은 이름은 clickable인데 실제 클릭하지 않는다. | 홈, 피드, 주식 골라보기 공개 네비게이션은 실제 클릭 후 body 표시와 오류 미노출을 검증하도록 변경했습니다. 계좌 메뉴는 인증 경계이므로 별도 로그인/BVT 테스트에서 다룹니다. | `tests/test_bvt_extended.py` |
+| `test_bvt_extended.py` 내부 공통 assertion 중복이 있다. | public error, private account data, text visibility assertion을 `utils/assertions.py` 공통 helper로 재사용하도록 정리했습니다. | `tests/test_bvt_extended.py`, `utils/assertions.py` |
+| CI에서 외부 사이트 상태와 테스트 실패 구분이 약하다. | smoke/regression 실행 전 공개 사이트 health check step을 추가했습니다. | `.github/workflows/ui-tests.yml` |
+| `pytest -n auto`는 runner 자원 변동성을 키울 수 있다. | main regression 병렬 실행을 `-n 2`로 고정했습니다. | `.github/workflows/ui-tests.yml` |
+
+### 보류 또는 단계적 반영
+
+| 피드백 | 결정 | 이유 |
+|---|---|---|
+| `tests/smoke`, `tests/bvt`, `tests/regression` 디렉터리로 즉시 재구성 | 보류 | 현재 37개 규모에서는 파일 이동 비용이 검증 이득보다 큽니다. 테스트 수가 70개 이상이 되거나 authenticated suite가 들어올 때 분리합니다. |
+| Firefox/WebKit regression 즉시 추가 | 보류 | 현재 공개 사이트 안내와 운영 기준은 Chrome/Edge 중심입니다. Chromium 안정화 후 nightly/lab job으로 먼저 추가하는 것이 안전합니다. |
+| YAML 명세 기반 pytest generator 도입 | 보류 | 현재는 `allure.story`로 명세 ID 추적을 우선 유지합니다. generator는 데이터 기반 반복 테스트가 늘어나는 시점에 도입합니다. |
+| 모든 텍스트 locator 제거 | 부분 보류 | 공개 웹에 `data-testid` 계약이 없으므로 완전 제거는 불가능합니다. 다만 검색 입력과 결과 클릭처럼 오탐 위험이 큰 locator는 이미 축소했고, 앞으로 DOM contract를 확보하면 추가 전환합니다. |
+| `conftest.py` fixture 모듈 즉시 분리 | 보류 | console artifact 추가 후에도 파일 크기는 관리 가능한 수준입니다. storage state, auth session, network logging fixture가 추가될 때 분리합니다. |
+
+### 최신 검증 결과
+
+정적 검사:
+
+```text
+ruff check tossinvest-ui-tests
+All checks passed
+```
+
+```text
+black --check tossinvest-ui-tests
+20 files would be left unchanged
+```
+
+BVT collection:
+
+```text
+pytest --collect-only -q tossinvest-ui-tests\tests -m bvt
+31/37 tests collected (6 deselected)
+```
+
+BVT 실제 브라우저 실행:
+
+```text
+pytest -q tests -m bvt --browser chromium
+31 passed, 6 deselected in 86.89s
+```
+
+전체 suite 실제 브라우저 실행:
+
+```text
+pytest -q tests --browser chromium
+37 passed in 96.69s
+```

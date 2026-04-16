@@ -56,6 +56,7 @@ def test_account_entry_guides_user_to_auth_or_account_context(page, test_setting
 
 
 @pytest.mark.ui
+@pytest.mark.optional_public_ui
 @pytest.mark.regression
 @allure.feature("Home")
 def test_live_chart_filters_are_clickable_without_full_page_error(page, test_settings):

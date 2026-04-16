@@ -12,6 +12,9 @@ PUBLIC_ERROR_PATTERNS = [
     "404 Not Found",
     "500 Internal",
     "Internal Server Error",
+    "문제가 발생했어요",
+    "잠시 후 다시 시도",
+    "다시 시도해 주세요",
 ]
 
 PRIVATE_ACCOUNT_PATTERNS = [
@@ -25,7 +28,7 @@ PRIVATE_ACCOUNT_PATTERNS = [
 def expect_no_public_error(page: Page) -> None:
     body = page.locator("body")
     for pattern in PUBLIC_ERROR_PATTERNS:
-        expect(body).not_to_contain_text(pattern)
+        expect(body).not_to_contain_text(re.compile(pattern))
 
 
 def expect_no_private_account_data(page: Page) -> None:

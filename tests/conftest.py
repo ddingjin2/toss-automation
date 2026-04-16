@@ -84,11 +84,23 @@ def context(
 @pytest.fixture()
 def page(context: BrowserContext, test_settings: Settings, request: pytest.FixtureRequest) -> Page:
     page = context.new_page()
+    console_messages: list[str] = []
+
+    def record_console(message) -> None:
+        console_messages.append(f"[{message.type}] {message.text}")
+
+    page.on("console", record_console)
     yield page
 
     failed = getattr(request.node, "rep_call", None) and request.node.rep_call.failed
     if failed:
         attach_screenshot(page, request.node.nodeid, test_settings.artifact_dir / "screenshots")
+        console_path = (
+            ensure_dir(test_settings.artifact_dir / "console")
+            / f"{safe_artifact_name(request.node.nodeid)}.log"
+        )
+        console_path.write_text("\n".join(console_messages), encoding="utf-8")
+        attach_file_if_exists(console_path, "browser-console", allure.attachment_type.TEXT)
 
     video = page.video
     page.close()
