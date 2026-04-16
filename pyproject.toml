@@ -1,0 +1,71 @@
+[project]
+name = "tossinvest-ui-tests"
+version = "0.1.0"
+description = "Python Playwright UI automation pipeline for Toss Securities web"
+requires-python = ">=3.11"
+dependencies = [
+    "allure-pytest>=2.13.5",
+    "black>=24.10.0",
+    "playwright>=1.49.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+    "pytest>=8.3.0",
+    "pytest-rerunfailures>=15.0",
+    "pytest-xdist>=3.6.0",
+    "python-dotenv>=1.0.1",
+    "pyyaml>=6.0.2",
+    "ruff>=0.8.0",
+]
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["config*", "pages*", "utils*", "tests*"]
+exclude = ["docs*", "test_cases*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+extend-exclude = '''
+/(
+  \.pytest_cache
+  | pytest-cache-files-.*
+  | artifacts
+  | allure-results
+  | allure-report
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [
+    ".pytest_cache",
+    "pytest-cache-files-*",
+    "artifacts",
+    "allure-results",
+    "allure-report",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra --strict-markers --alluredir=allure-results"
+testpaths = ["tests"]
+markers = [
+    "bvt: build verification tests for deciding whether a build is regression-ready",
+    "auth: authentication and authorization boundary tests",
+    "login: public login entry and login guidance tests",
+    "smoke: small PR-gate suite for public critical path",
+    "regression: broader UI regression suite",
+    "slow: tests expected to take longer than normal UI checks",
+    "ui: browser-based UI tests",
+    "search: stock search behavior",
+    "quote: quote, chart, and stock detail behavior",
+    "responsive: viewport and layout behavior",
+]

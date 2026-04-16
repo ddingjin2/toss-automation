@@ -1,0 +1,897 @@
+suite: tossinvest_public_web
+version: 4
+format_reason: >
+  YAML is readable in review, supports nested steps/data without escaping-heavy syntax,
+  and can later feed a pytest parameter generator.
+bvt_suite:
+  purpose: >
+    Build Verification Test set for quickly deciding whether a new build is usable
+    for deeper regression testing.
+  pass_criteria:
+    - All ready BVT cases pass on Chromium.
+    - Conditional BVT cases either pass or are explicitly skipped with a known public-DOM limitation.
+    - No full-page application error is observed in any BVT case.
+    - Failure screenshots, traces, and Allure results are attached.
+  recommended_marker: bvt
+  candidate_ids:
+    - TI-WEB-001
+    - TI-WEB-006
+    - TI-WEB-007
+    - TI-WEB-008
+    - TI-WEB-011
+    - TI-WEB-012
+    - TI-WEB-016
+    - TI-WEB-029
+    - TI-WEB-036
+    - TI-WEB-037
+    - TI-WEB-038
+    - TI-WEB-039
+    - TI-WEB-040
+    - TI-WEB-041
+    - TI-WEB-042
+    - TI-WEB-043
+    - TI-WEB-044
+    - TI-WEB-045
+    - TI-WEB-046
+    - TI-WEB-047
+    - TI-WEB-048
+    - TI-WEB-049
+    - TI-WEB-050
+    - TI-WEB-051
+    - TI-WEB-052
+    - TI-WEB-053
+    - TI-WEB-054
+    - TI-WEB-055
+    - TI-WEB-056
+    - TI-WEB-057
+    - TI-WEB-058
+    - TI-WEB-059
+    - TI-WEB-060
+required_fields:
+  - id
+  - title
+  - precondition
+  - steps
+  - expected_result
+  - priority
+  - tags
+  - data
+  - smoke
+  - regression
+cases:
+  - id: TI-WEB-001
+    title: 홈 랜딩 공개 셸 로딩
+    precondition: 사용자는 비로그인 상태이며 지원 브라우저를 사용한다.
+    steps:
+      - 토스증권 WTS 홈에 접속한다.
+      - 상단 네비게이션과 검색 진입점을 확인한다.
+      - 실시간 차트 영역을 확인한다.
+    expected_result: 홈, 피드, 주식 골라보기, 내 계좌, 검색, 실시간 차트가 표시된다.
+    priority: P0
+    tags: [home, landing, ui]
+    data: { path: "/" }
+    smoke: true
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-002
+    title: 홈 투자 유의 문구 노출
+    precondition: 사용자는 비로그인 상태다.
+    steps:
+      - 홈에 접속한다.
+      - 하단 푸터로 이동한다.
+    expected_result: 투자 정보가 참고용이라는 유의 문구와 고객센터/정책 링크가 표시된다.
+    priority: P1
+    tags: [home, compliance, footer]
+    data: { expected_keyword: "투자 판단" }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-003
+    title: 홈 실시간 차트 필터 전환
+    precondition: 홈 실시간 차트가 로딩되어 있다.
+    steps:
+      - 홈에 접속한다.
+      - 국내 필터를 선택한다.
+      - 해외 또는 전체 필터를 선택한다.
+    expected_result: 필터 전환 후 페이지 오류 없이 차트 목록이 유지된다.
+    priority: P1
+    tags: [home, chart, quote]
+    data: { filters: ["국내", "해외", "전체"] }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-004
+    title: 피드 메뉴 이동
+    precondition: 사용자는 홈에 접속해 있다.
+    steps:
+      - 피드 메뉴를 선택한다.
+      - 피드 또는 뉴스 콘텐츠 영역을 확인한다.
+    expected_result: 피드/뉴스 성격의 공개 콘텐츠가 표시되고 오류 페이지로 이동하지 않는다.
+    priority: P1
+    tags: [navigation, feed]
+    data: {}
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-005
+    title: 주식 골라보기 메뉴 이동
+    precondition: 사용자는 홈에 접속해 있다.
+    steps:
+      - 주식 골라보기 메뉴를 선택한다.
+      - 종목 탐색 콘텐츠를 확인한다.
+    expected_result: 주식 골라보기 공개 영역이 표시된다.
+    priority: P1
+    tags: [navigation, discovery]
+    data: {}
+    smoke: true
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-006
+    title: 내 계좌 진입 시 인증 유도
+    precondition: 사용자는 비로그인 상태다.
+    steps:
+      - 홈에서 내 계좌 메뉴를 선택한다.
+      - 인증/로그인/앱 안내 UI를 확인한다.
+    expected_result: 계좌 정보가 바로 노출되지 않고 인증 또는 로그인 유도 UX가 표시된다.
+    priority: P0
+    tags: [auth, account, security]
+    data: {}
+    smoke: true
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-007
+    title: 검색 진입점 클릭
+    precondition: 홈 검색 진입점이 표시되어 있다.
+    steps:
+      - 검색 진입점을 클릭하거나 / 키를 입력한다.
+      - 검색 입력창 포커스를 확인한다.
+    expected_result: 종목 검색 입력창이 표시되고 입력 가능하다.
+    priority: P0
+    tags: [search, ui]
+    data: {}
+    smoke: true
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-008
+    title: 국내 종목명 검색
+    precondition: 검색 입력창이 열려 있다.
+    steps:
+      - 삼성전자를 입력한다.
+      - 검색을 실행한다.
+    expected_result: 삼성전자 또는 005930 관련 결과가 표시된다.
+    priority: P0
+    tags: [search, domestic]
+    data: { query: "삼성전자" }
+    smoke: true
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-009
+    title: 해외 종목명 검색
+    precondition: 검색 입력창이 열려 있다.
+    steps:
+      - Apple 또는 AAPL을 입력한다.
+      - 검색 결과를 확인한다.
+    expected_result: 애플 또는 AAPL 관련 결과가 표시된다.
+    priority: P1
+    tags: [search, us-stock]
+    data: { query: "AAPL" }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-010
+    title: 존재하지 않는 종목 검색
+    precondition: 검색 입력창이 열려 있다.
+    steps:
+      - 존재하지 않는 문자열을 입력한다.
+      - 검색을 실행한다.
+    expected_result: 빈 결과 안내가 표시되거나 입력값이 유지된다.
+    priority: P1
+    tags: [search, negative]
+    data: { query: "ZZZ_NO_SUCH_STOCK_987654" }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-011
+    title: 검색 결과에서 종목 상세 진입
+    precondition: 삼성전자 검색 결과가 표시되어 있다.
+    steps:
+      - 삼성전자 결과를 선택한다.
+      - 상세 화면 제목 또는 종목 코드를 확인한다.
+    expected_result: 삼성전자 상세 화면으로 이동한다.
+    priority: P0
+    tags: [search, stock-detail, quote]
+    data: { query: "삼성전자" }
+    smoke: true
+    regression: true
+    automation_status: conditional
+  - id: TI-WEB-012
+    title: 종목 상세 시세 영역 노출
+    precondition: 종목 상세 화면에 진입해 있다.
+    steps:
+      - 상세 화면 상단을 확인한다.
+      - 시세, 거래량, 차트 관련 영역을 확인한다.
+    expected_result: 시세 또는 차트 영역이 표시된다.
+    priority: P0
+    tags: [stock-detail, quote]
+    data: { query: "삼성전자" }
+    smoke: true
+    regression: true
+    automation_status: conditional
+  - id: TI-WEB-013
+    title: 종목 상세 차트 기간 선택
+    precondition: 종목 상세 차트가 표시되어 있다.
+    steps:
+      - 1일, 1개월, 1년 같은 기간 옵션을 선택한다.
+      - 차트 영역이 유지되는지 확인한다.
+    expected_result: 기간 전환 후 차트 오류가 발생하지 않는다.
+    priority: P1
+    tags: [stock-detail, chart]
+    data: { periods: ["1일", "1개월", "1년"] }
+    smoke: false
+    regression: true
+    automation_status: conditional
+  - id: TI-WEB-014
+    title: 관심종목 추가 비로그인 인증 유도
+    precondition: 비로그인 사용자가 종목 상세에 진입해 있다.
+    steps:
+      - 관심종목 또는 즐겨찾기 버튼을 선택한다.
+      - 인증 유도 UI를 확인한다.
+    expected_result: 관심종목 저장 전 로그인/인증 안내가 표시된다.
+    priority: P1
+    tags: [watchlist, auth]
+    data: { query: "삼성전자" }
+    smoke: false
+    regression: true
+    automation_status: staging_required
+  - id: TI-WEB-015
+    title: 주문/거래 CTA 비로그인 보호
+    precondition: 비로그인 사용자가 종목 상세에 진입해 있다.
+    steps:
+      - 구매/판매/주문 CTA가 있으면 선택한다.
+      - 인증 유도 UI를 확인한다.
+    expected_result: 거래 기능은 인증 전 실행되지 않는다.
+    priority: P0
+    tags: [trade, auth, security]
+    data: {}
+    smoke: false
+    regression: true
+    automation_status: staging_required
+  - id: TI-WEB-016
+    title: 모바일 홈 반응형 렌더링
+    precondition: 모바일 뷰포트로 접속한다.
+    steps:
+      - 390x844 뷰포트에서 홈에 접속한다.
+      - 검색과 주요 콘텐츠 노출을 확인한다.
+      - 앱 오류가 발생하지 않는지 확인한다.
+    expected_result: 주요 UI가 보이고 앱 오류가 없다.
+    priority: P0
+    tags: [responsive, mobile]
+    data: { width: 390, height: 844 }
+    smoke: true
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-017
+    title: 데스크톱 홈 반응형 렌더링
+    precondition: 데스크톱 뷰포트로 접속한다.
+    steps:
+      - 1440x900 뷰포트에서 홈에 접속한다.
+      - 실시간 차트와 카테고리 영역을 확인한다.
+    expected_result: 데스크톱 레이아웃에서 핵심 시장 영역이 표시된다.
+    priority: P1
+    tags: [responsive, desktop]
+    data: { width: 1440, height: 900 }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-018
+    title: 지원하지 않는 브라우저 안내
+    precondition: 서비스가 지원하지 않는 user-agent 또는 브라우저 조합을 사용한다.
+    steps:
+      - 지원 범위 밖 브라우저 조건으로 접속한다.
+      - 안내 문구를 확인한다.
+    expected_result: 지원 브라우저 안내와 다운로드/업데이트 링크가 표시된다.
+    priority: P2
+    tags: [compatibility, negative]
+    data: { user_agent: "unsupported" }
+    smoke: false
+    regression: false
+    automation_status: manual_or_lab
+  - id: TI-WEB-019
+    title: 네트워크 지연 중 로딩 처리
+    precondition: 시장 데이터 API 응답이 지연되는 네트워크 조건이다.
+    steps:
+      - 홈에 접속한다.
+      - 데이터 로딩 중 UI를 확인한다.
+      - 응답 후 콘텐츠 전환을 확인한다.
+    expected_result: 로딩 중 오류 페이지가 노출되지 않고 최종 콘텐츠가 표시된다.
+    priority: P1
+    tags: [loading, network]
+    data: { network: "slow-3g-or-api-delay" }
+    smoke: false
+    regression: true
+    automation_status: needs_mock_or_staging
+  - id: TI-WEB-020
+    title: 시장 데이터 API 오류 메시지
+    precondition: 시장 데이터 API가 5xx 또는 오류 응답을 반환한다.
+    steps:
+      - API 오류를 모킹한다.
+      - 홈 또는 종목 상세에 접속한다.
+      - 오류/재시도 UX를 확인한다.
+    expected_result: 사용자가 이해 가능한 오류 안내 또는 재시도 UI가 표시된다.
+    priority: P1
+    tags: [error, network, negative]
+    data: { mocked_status: 500 }
+    smoke: false
+    regression: true
+    automation_status: needs_mock_or_staging
+  - id: TI-WEB-021
+    title: 주요 링크 키보드 접근
+    precondition: 홈에 접속해 있다.
+    steps:
+      - Tab 키로 주요 네비게이션을 이동한다.
+      - Enter로 검색 또는 메뉴를 실행한다.
+    expected_result: 포커스 이동과 키보드 실행이 가능하다.
+    priority: P1
+    tags: [accessibility, keyboard]
+    data: {}
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-022
+    title: 이미지 대체 텍스트 기본 접근성
+    precondition: 홈에 접속해 있다.
+    steps:
+      - 주요 로고/이미지의 접근 가능한 이름을 확인한다.
+    expected_result: 로고 등 핵심 이미지에 접근 가능한 이름이 있다.
+    priority: P2
+    tags: [accessibility]
+    data: {}
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-023
+    title: 새로고침 후 홈 상태 복원
+    precondition: 홈 콘텐츠가 표시되어 있다.
+    steps:
+      - 홈을 새로고침한다.
+      - 주요 시장 영역을 다시 확인한다.
+    expected_result: 새로고침 후에도 검색과 실시간 차트가 표시된다.
+    priority: P1
+    tags: [home, reliability]
+    data: {}
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-024
+    title: 공개 정책 링크 이동
+    precondition: 홈 푸터가 표시되어 있다.
+    steps:
+      - 개인정보 처리방침 또는 투자 유의사항 링크를 선택한다.
+      - 새 페이지 또는 현재 페이지 이동을 확인한다.
+    expected_result: 정책 문서가 접근 가능하고 404가 아니다.
+    priority: P2
+    tags: [footer, compliance, navigation]
+    data: { link_text: "개인정보 처리방침" }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-025
+    title: 검색 입력값 초기화
+    precondition: 검색 입력창이 열려 있고 검색어가 입력되어 있다.
+    steps:
+      - 삼성전자를 입력한다.
+      - 검색창의 지우기 버튼 또는 전체 선택 후 삭제를 수행한다.
+      - 입력값과 결과 영역 상태를 확인한다.
+    expected_result: 검색어가 제거되고 검색 전 상태 또는 추천/기본 검색 상태로 돌아간다.
+    priority: P1
+    tags: [search, usability]
+    data: { query: "삼성전자" }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-026
+    title: 슬래시 키 검색 단축키
+    precondition: 사용자는 홈에 접속해 있고 검색 입력창은 닫혀 있다.
+    steps:
+      - 키보드에서 / 키를 입력한다.
+      - 검색 입력창이 열리고 포커스가 이동하는지 확인한다.
+    expected_result: 마우스 없이 검색 입력이 가능한 상태가 된다.
+    priority: P1
+    tags: [search, keyboard, accessibility]
+    data: { shortcut: "/" }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-027
+    title: 검색 결과 키보드 선택
+    precondition: 검색 결과 목록이 표시되어 있다.
+    steps:
+      - 삼성전자를 검색한다.
+      - 방향키 또는 Tab 키로 첫 번째 결과에 접근한다.
+      - Enter 키로 결과를 선택한다.
+    expected_result: 선택한 종목 상세 또는 관련 결과 화면으로 이동한다.
+    priority: P1
+    tags: [search, keyboard, accessibility]
+    data: { query: "삼성전자" }
+    smoke: false
+    regression: true
+    automation_status: conditional
+  - id: TI-WEB-028
+    title: 모든 지수 목록 진입
+    precondition: 홈 지수 목록 영역이 표시되어 있다.
+    steps:
+      - 모든 지수 링크 또는 버튼을 선택한다.
+      - 지수 목록 화면 또는 확장 영역을 확인한다.
+    expected_result: 국내/해외 주요 지수 목록이 접근 가능하고 오류가 발생하지 않는다.
+    priority: P1
+    tags: [home, index, navigation]
+    data: { entry_text: "모든 지수" }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-029
+    title: 시장 상태 배지 노출
+    precondition: 사용자는 홈에 접속해 있다.
+    steps:
+      - 홈 상단 또는 시장 요약 영역을 확인한다.
+      - 국내 장 상태와 해외 장 상태 문구를 확인한다.
+    expected_result: 국내 장 닫힘/열림, 해외 프리마켓/정규장 등 시장 상태가 표시된다.
+    priority: P1
+    tags: [home, market-status]
+    data: { expected_keywords: ["국내", "해외"] }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-030
+    title: 지금 뜨는 카테고리 상세 진입
+    precondition: 홈의 지금 뜨는 카테고리 영역이 표시되어 있다.
+    steps:
+      - 국내 또는 해외 카테고리 항목을 선택한다.
+      - 카테고리 상세 또는 관련 종목 목록을 확인한다.
+    expected_result: 선택한 카테고리의 공개 종목 목록 또는 상세 콘텐츠가 표시된다.
+    priority: P1
+    tags: [home, category, navigation]
+    data: { category_scope: "국내 또는 해외" }
+    smoke: false
+    regression: true
+    automation_status: conditional
+  - id: TI-WEB-031
+    title: 국내 투자자 동향 탭 전환
+    precondition: 홈의 국내 투자자 동향 영역이 표시되어 있다.
+    steps:
+      - 순매수 탭을 선택한다.
+      - 순매도 탭을 선택한다.
+      - 목록이 갱신되고 오류가 없는지 확인한다.
+    expected_result: 투자자 동향 목록이 탭 선택에 따라 표시되고 앱 오류가 발생하지 않는다.
+    priority: P1
+    tags: [home, investor-trend, quote]
+    data: { tabs: ["순매수", "순매도"] }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-032
+    title: 피드 콘텐츠 상세 진입
+    precondition: 피드 또는 뉴스 목록이 표시되어 있다.
+    steps:
+      - 피드 메뉴로 이동한다.
+      - 첫 번째 공개 콘텐츠를 선택한다.
+      - 상세 콘텐츠 제목과 본문 일부를 확인한다.
+    expected_result: 공개 피드 상세가 표시되고 404 또는 앱 오류가 발생하지 않는다.
+    priority: P1
+    tags: [feed, news, navigation]
+    data: {}
+    smoke: false
+    regression: true
+    automation_status: conditional
+  - id: TI-WEB-033
+    title: 주식 골라보기 조건 변경
+    precondition: 주식 골라보기 화면이 표시되어 있다.
+    steps:
+      - 주식 골라보기 메뉴로 이동한다.
+      - 공개 필터 또는 조건 칩을 선택한다.
+      - 결과 목록이 갱신되는지 확인한다.
+    expected_result: 조건 변경 후 관련 종목 목록이 표시되고 오류가 발생하지 않는다.
+    priority: P1
+    tags: [stock-picker, filter, discovery]
+    data: { filter_type: "공개 조건 칩" }
+    smoke: false
+    regression: true
+    automation_status: conditional
+  - id: TI-WEB-034
+    title: 푸터 고객센터 링크 접근
+    precondition: 홈 푸터가 표시되어 있다.
+    steps:
+      - 고객센터 링크를 선택한다.
+      - 새 탭 또는 현재 탭으로 열린 고객센터 페이지를 확인한다.
+    expected_result: 고객센터 페이지가 접근 가능하고 404가 아니다.
+    priority: P2
+    tags: [footer, customer-support, navigation]
+    data: { link_text: "고객센터" }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-035
+    title: 태블릿 뷰포트 홈 렌더링
+    precondition: 태블릿 크기 뷰포트로 접속한다.
+    steps:
+      - 768x1024 뷰포트에서 홈에 접속한다.
+      - 네비게이션과 시장 요약 영역을 확인한다.
+      - 앱 오류가 발생하지 않는지 확인한다.
+    expected_result: 태블릿 크기에서도 핵심 공개 콘텐츠가 표시된다.
+    priority: P1
+    tags: [responsive, tablet]
+    data: { width: 768, height: 1024 }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-036
+    title: 브라우저 뒤로가기 상태 복원
+    precondition: 사용자는 홈에서 다른 공개 메뉴로 이동할 수 있다.
+    steps:
+      - 홈에서 피드 또는 주식 골라보기로 이동한다.
+      - 브라우저 뒤로가기를 실행한다.
+      - 홈의 주요 영역이 다시 표시되는지 확인한다.
+    expected_result: 뒤로가기 후 홈 상태가 복원되고 오류 페이지가 표시되지 않는다.
+    priority: P1
+    tags: [navigation, reliability]
+    data: { target_menu: "피드 또는 주식 골라보기" }
+    smoke: false
+    regression: true
+    automation_status: ready
+  - id: TI-WEB-037
+    title: BVT 홈 최초 진입 10초 이내 안정화
+    precondition: 새 브라우저 컨텍스트에서 쿠키와 세션이 없는 상태다.
+    steps:
+      - 홈 URL에 직접 접속한다.
+      - body가 표시될 때까지 대기한다.
+      - 홈 네비게이션과 시장 요약 키워드가 10초 이내 표시되는지 확인한다.
+    expected_result: 홈이 timeout 없이 로드되고 홈/피드/주식 골라보기/내 계좌 중 핵심 네비게이션이 표시된다.
+    priority: P0
+    tags: [bvt, home, availability]
+    data: { timeout_ms: 10000, path: "/" }
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-038
+    title: BVT 홈 전체 앱 오류 미노출
+    precondition: 사용자는 비로그인 상태로 홈에 접속한다.
+    steps:
+      - 홈을 로드한다.
+      - 화면 전체 텍스트를 확인한다.
+      - Application error, 404, 500, Retry loop 문구가 없는지 확인한다.
+    expected_result: 공개 홈에서 전체 앱 오류 또는 서버 오류 화면이 표시되지 않는다.
+    priority: P0
+    tags: [bvt, home, error]
+    data: { forbidden_keywords: ["Application error", "404", "500"] }
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-039
+    title: BVT 검색 입력 포커스 및 입력 가능성
+    precondition: 홈이 정상 로드되어 있다.
+    steps:
+      - 검색 진입점을 클릭하거나 / 단축키를 입력한다.
+      - 검색 입력창에 삼성전자를 입력한다.
+      - 입력값이 유지되는지 확인한다.
+    expected_result: 검색 입력창이 포커스를 받고 사용자가 입력한 검색어가 유지된다.
+    priority: P0
+    tags: [bvt, search, keyboard]
+    data: { query: "삼성전자", shortcut: "/" }
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-040
+    title: BVT 검색 결과 기본 응답
+    precondition: 검색 입력창에 접근 가능하다.
+    steps:
+      - 삼성전자를 검색한다.
+      - 검색 결과 또는 관련 키워드가 표시되는지 확인한다.
+      - 검색 결과 로딩 중 앱 오류가 없는지 확인한다.
+    expected_result: 삼성전자, 005930, 또는 관련 검색 결과가 표시되고 오류 화면으로 전환되지 않는다.
+    priority: P0
+    tags: [bvt, search, domestic]
+    data: { query: "삼성전자", fallback_keywords: ["삼성", "005930"] }
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-041
+    title: BVT 내 계좌 개인 정보 비노출
+    precondition: 사용자는 비로그인 상태다.
+    steps:
+      - 홈에서 내 계좌 메뉴를 선택한다.
+      - 화면에 인증/로그인 유도 문구가 표시되는지 확인한다.
+      - 잔고, 평가금액, 계좌번호 등 개인 정보가 즉시 노출되지 않는지 확인한다.
+    expected_result: 비로그인 사용자는 인증 유도 UX를 보고 개인 계좌 정보는 노출되지 않는다.
+    priority: P0
+    tags: [bvt, auth, account, security]
+    data: { forbidden_keywords: ["평가금액", "계좌번호", "주문가능"] }
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-042
+    title: BVT 실시간 차트 기본 목록 노출
+    precondition: 홈이 정상 로드되어 있다.
+    steps:
+      - 실시간 차트 영역으로 이동한다.
+      - 순위, 현재가, 등락률, 거래대금 중 하나 이상의 표 헤더를 확인한다.
+      - 첫 번째 공개 종목 행이 표시되는지 확인한다.
+    expected_result: 실시간 차트 기본 목록이 비어 있지 않고 시장 데이터 영역이 표시된다.
+    priority: P0
+    tags: [bvt, quote, chart, home]
+    data: { expected_headers: ["순위", "현재가", "등락률", "거래대금"] }
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-043
+    title: BVT 시장 상태와 지수 요약 노출
+    precondition: 홈이 정상 로드되어 있다.
+    steps:
+      - 홈 상단 시장 상태 영역을 확인한다.
+      - 국내/해외 장 상태 중 하나 이상을 확인한다.
+      - 코스피, 코스닥, 나스닥, S&P 500 등 주요 지수 중 하나 이상을 확인한다.
+    expected_result: 시장 상태와 주요 지수 요약이 표시된다.
+    priority: P0
+    tags: [bvt, market-status, index]
+    data: { expected_keywords: ["국내", "해외", "코스피", "나스닥", "S&P 500"] }
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-044
+    title: BVT 모바일 홈 핵심 콘텐츠 렌더링
+    precondition: 모바일 뷰포트 390x844로 접속한다.
+    steps:
+      - 모바일 뷰포트에서 홈을 로드한다.
+      - 홈 네비게이션 또는 실시간 차트 영역이 표시되는지 확인한다.
+      - Application error가 없는지 확인한다.
+    expected_result: 모바일 뷰포트에서도 공개 홈의 핵심 콘텐츠가 표시되고 앱 오류가 없다.
+    priority: P0
+    tags: [bvt, responsive, mobile]
+    data: { width: 390, height: 844 }
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-045
+    title: BVT 네비게이션 왕복
+    precondition: 홈이 정상 로드되어 있다.
+    steps:
+      - 피드 또는 주식 골라보기 메뉴로 이동한다.
+      - 브라우저 뒤로가기를 실행한다.
+      - 홈 핵심 영역이 다시 표시되는지 확인한다.
+    expected_result: 공개 메뉴 이동 후 뒤로가기로 홈 상태가 복원된다.
+    priority: P0
+    tags: [bvt, navigation, reliability]
+    data: { target_menu: "피드 또는 주식 골라보기" }
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-046
+    title: BVT 푸터 컴플라이언스 문구 노출
+    precondition: 홈이 정상 로드되어 있다.
+    steps:
+      - 홈 하단 또는 전체 문서를 확인한다.
+      - 투자 정보가 참고용이라는 유의 문구를 확인한다.
+      - 고객센터 또는 정책 링크 중 하나 이상을 확인한다.
+    expected_result: 투자 유의 문구와 정책/고객센터 접근 경로가 표시된다.
+    priority: P1
+    tags: [bvt, footer, compliance]
+    data: { expected_keywords: ["투자 판단", "고객센터", "투자 유의사항"] }
+    smoke: false
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-047
+    title: BVT 없는 종목 검색의 안전한 실패
+    precondition: 검색 입력창에 접근 가능하다.
+    steps:
+      - 존재하지 않는 종목 문자열을 입력한다.
+      - 검색을 실행한다.
+      - 빈 결과 안내 또는 입력값 유지 상태를 확인한다.
+    expected_result: 결과가 없어도 앱 오류 없이 사용자가 이해 가능한 상태가 유지된다.
+    priority: P1
+    tags: [bvt, search, negative]
+    data: { query: "ZZZ_NO_SUCH_STOCK_987654" }
+    smoke: false
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-048
+    title: BVT 종목 상세 진입 후 오류 미노출
+    precondition: 공개 검색 결과에서 종목 상세 진입이 가능하다.
+    steps:
+      - 삼성전자를 검색한다.
+      - 첫 번째 관련 결과를 선택한다.
+      - 상세 화면에서 종목명, 시세, 차트 관련 키워드 중 하나 이상을 확인한다.
+      - Application error가 없는지 확인한다.
+    expected_result: 공개적으로 접근 가능한 종목 상세가 오류 없이 표시된다.
+    priority: P0
+    tags: [bvt, stock-detail, quote]
+    data: { query: "삼성전자" }
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: conditional
+  - id: TI-WEB-049
+    title: BVT 새로고침 후 홈 복구
+    precondition: 홈 핵심 콘텐츠가 표시되어 있다.
+    steps:
+      - 홈을 새로고침한다.
+      - 네비게이션과 시장 정보 영역을 다시 확인한다.
+      - 앱 오류가 없는지 확인한다.
+    expected_result: 새로고침 후에도 홈이 정상 복구된다.
+    priority: P1
+    tags: [bvt, home, reliability]
+    data: {}
+    smoke: false
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-050
+    title: BVT 데스크톱 기본 뷰포트 렌더링
+    precondition: 데스크톱 뷰포트 1440x900으로 접속한다.
+    steps:
+      - 홈을 로드한다.
+      - 실시간 차트와 지수 요약 영역을 확인한다.
+      - 주요 텍스트가 표시 영역 밖으로 완전히 사라지지 않는지 확인한다.
+    expected_result: 데스크톱 기본 뷰포트에서 핵심 시장 정보가 표시된다.
+    priority: P1
+    tags: [bvt, responsive, desktop]
+    data: { width: 1440, height: 900 }
+    smoke: false
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-051
+    title: BVT 주요 메뉴 클릭 가능성
+    precondition: 홈 네비게이션이 표시되어 있다.
+    steps:
+      - 홈, 피드, 주식 골라보기, 내 계좌 메뉴의 표시 여부를 확인한다.
+      - 각 메뉴가 링크 또는 클릭 가능한 요소인지 확인한다.
+    expected_result: 주요 메뉴가 사용자 조작 가능한 상태로 표시된다.
+    priority: P1
+    tags: [bvt, navigation, accessibility]
+    data: { menus: ["홈", "피드", "주식 골라보기", "내 계좌"] }
+    smoke: false
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-052
+    title: BVT 초기 로드 중 로딩 상태 이탈
+    precondition: 새 브라우저 컨텍스트로 홈에 접속한다.
+    steps:
+      - 홈을 로드한다.
+      - 로딩 또는 skeleton 상태가 영구적으로 남지 않는지 확인한다.
+      - 최종 콘텐츠가 표시되는지 확인한다.
+    expected_result: 초기 로딩이 완료되고 최종 공개 콘텐츠가 표시된다.
+    priority: P1
+    tags: [bvt, loading, reliability]
+    data: { timeout_ms: 10000 }
+    smoke: false
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-053
+    title: BVT 홈 로그인 진입점에서 로그인 페이지 이동
+    precondition: 사용자는 비로그인 상태로 홈에 접속해 있다.
+    steps:
+      - 홈에서 로그인 링크를 선택한다.
+      - 로그인 URL 또는 로그인 화면으로 이동했는지 확인한다.
+      - 토스 앱 로그인 안내가 표시되는지 확인한다.
+    expected_result: 로그인 진입점 선택 시 /signin 로그인 컨텍스트로 이동하고 앱 오류가 없다.
+    priority: P0
+    tags: [bvt, login, auth, navigation]
+    data: { expected_path: "/signin" }
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-054
+    title: BVT 로그인 페이지 기본 옵션 노출
+    precondition: 사용자는 로그인 페이지에 접속해 있다.
+    steps:
+      - 로그인 페이지를 연다.
+      - 토스 앱 로그인, 휴대폰 번호 로그인, QR코드 로그인을 확인한다.
+      - 필수 약관과 가입하기 링크를 확인한다.
+    expected_result: 로그인에 필요한 공개 옵션과 약관/가입 진입점이 표시된다.
+    priority: P0
+    tags: [bvt, login, auth]
+    data: { expected_options: ["토스 앱", "휴대폰 번호", "QR코드"] }
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-055
+    title: BVT QR 로그인 안내 노출
+    precondition: 사용자는 로그인 페이지에 접속해 있다.
+    steps:
+      - QR코드로 로그인을 선택한다.
+      - QR코드 안내 문구와 이미지가 표시되는지 확인한다.
+    expected_result: QR 로그인 안내가 표시되고 렌더링 오류가 없다.
+    priority: P1
+    tags: [bvt, login, auth, qr]
+    data: {}
+    smoke: false
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-056
+    title: BVT 토스 앱 없이 문자 인증 로그인 폼 노출
+    precondition: 사용자는 로그인 페이지에 접속해 있다.
+    steps:
+      - 토스 앱 없이 로그인하기를 선택한다.
+      - 문자 인증 로그인 화면을 확인한다.
+      - 통신사, 약관, 인증번호 받기 요소를 확인한다.
+    expected_result: 문자 인증 기반 로그인 폼이 표시되고 앱 오류가 없다.
+    priority: P1
+    tags: [bvt, login, auth, sms]
+    data: {}
+    smoke: false
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-057
+    title: BVT 빈 문자 인증 요청 안전 처리
+    precondition: 문자 인증 로그인 폼이 표시되어 있다.
+    steps:
+      - 필수 정보를 입력하지 않은 상태를 유지한다.
+      - 인증번호 받기 버튼 상태를 확인하거나 클릭한다.
+      - 필수 입력/약관 안내 또는 폼 유지 상태를 확인한다.
+    expected_result: 필수값이 없어도 앱 오류 없이 사용자가 이해 가능한 상태가 유지된다.
+    priority: P1
+    tags: [bvt, login, auth, negative]
+    data: {}
+    smoke: false
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-058
+    title: BVT 로그인 페이지에서 뒤로가기 홈 복귀
+    precondition: 사용자는 홈에서 로그인 페이지로 이동했다.
+    steps:
+      - 로그인 페이지에서 브라우저 뒤로가기를 실행한다.
+      - 홈의 핵심 영역이 다시 표시되는지 확인한다.
+    expected_result: 뒤로가기 후 홈으로 복귀하고 앱 오류가 없다.
+    priority: P0
+    tags: [bvt, login, navigation, reliability]
+    data: {}
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-059
+    title: BVT 로그인 페이지 가입하기 진입점 노출
+    precondition: 사용자는 로그인 페이지에 접속해 있다.
+    steps:
+      - 로그인 페이지 하단을 확인한다.
+      - 아직 회원이 아닌지 묻는 문구와 가입하기 링크를 확인한다.
+    expected_result: 신규 사용자 가입 진입점이 표시된다.
+    priority: P1
+    tags: [bvt, login, signup]
+    data: {}
+    smoke: false
+    regression: true
+    bvt: true
+    automation_status: ready
+  - id: TI-WEB-060
+    title: BVT 비로그인 내 계좌 진입 시 로그인 컨텍스트 유도
+    precondition: 사용자는 비로그인 상태로 홈에 접속해 있다.
+    steps:
+      - 내 계좌 메뉴를 선택한다.
+      - 로그인, 인증, 토스 앱, 휴대폰, QR 등 인증 컨텍스트를 확인한다.
+      - 계좌번호, 예수금, 평가금액 등 개인 정보가 노출되지 않는지 확인한다.
+    expected_result: 비로그인 사용자는 로그인/인증 컨텍스트로 유도되고 개인 정보는 노출되지 않는다.
+    priority: P0
+    tags: [bvt, login, auth, account, security]
+    data: { forbidden_keywords: ["평가금액", "계좌번호", "예수금"] }
+    smoke: true
+    regression: true
+    bvt: true
+    automation_status: ready
