@@ -1,84 +1,155 @@
-# Toss Securities Public Web Test Strategy
+# 토스증권 공개 웹 테스트 전략
 
-## Assumptions
+## 1. 전제
 
-- Public URL: `https://www.tossinvest.com`.
-- Publicly verifiable areas: home landing, navigation, feed/news entry, stock discovery, public search, public quote/chart surfaces, footer policy links, responsive rendering.
-- Authentication/account-bound areas: account portfolio, watchlist persistence, order placement, trade confirmation, account-specific balances. These require staging data or a controlled authenticated session.
-- Unknown or unstable details are marked as `conditional`, `needs_mock_or_staging`, or `manual_or_lab` in `test_cases/tossinvest_public_cases.yaml`.
+- 대상 URL은 `https://www.tossinvest.com`입니다.
+- 기본 대상은 비로그인 사용자도 접근 가능한 공개 웹입니다.
+- 인증, 계좌, 거래, 관심종목 저장처럼 개인 상태가 필요한 기능은 운영 공개 웹 BVT에서 제외합니다.
+- 실제 로그인 성공과 인증 후 기능은 스테이징 계정과 인증 제어 정책이 필요합니다.
 
-## Scope
+## 2. 자동화 범위
 
-Automate:
+자동화 대상:
 
-- P0/P1 public critical path: landing, search entry, known stock search, stock detail reachability when publicly available, auth gate for account entry.
-- Regression checks for public quote/chart containers, menu navigation, footer/compliance copy, responsive viewports.
-- Negative checks that can be validated without sensitive state, such as no-result search and no full-page application error.
-- Public login UX checks: login entry navigation, signin options, QR guidance, SMS auth form rendering, safe handling of empty auth requests, signup entry visibility, browser back from signin, and unauthenticated account guard.
+- 홈 랜딩과 주요 네비게이션
+- 공개 검색 진입과 대표 종목 검색
+- 공개 종목 상세 진입과 시세/차트 영역
+- 실시간 차트, 지수, 시장 상태
+- 로그인 진입과 로그인 안내 UX
+- QR 로그인 안내와 문자 인증 로그인 폼
+- 비로그인 내 계좌 진입 시 인증 유도
+- 개인 계좌 정보 비노출
+- 모바일/데스크톱 기본 렌더링
+- 새로고침, 뒤로가기, 초기 로딩 안정성
+- 빈 검색어 또는 존재하지 않는 종목 검색의 안전한 처리
 
-Do not automate against production by default:
+운영 공개 웹에서 제외하는 대상:
 
-- Real order placement, account balances, real watchlist mutation, authenticated personal data.
-- Pixel-perfect chart internals and real-time price exact values. Values are time-sensitive and brittle.
-- CAPTCHA, device binding, OTP, and external app deep-link completion.
-- Successful real login, logout, authenticated account access, session persistence, and post-login mutations unless a staging account plus controlled authentication flow is available.
+- 실제 로그인 성공
+- 로그아웃, 세션 유지, 세션 만료
+- 실제 계좌 잔고/평가금액 확인
+- 관심종목 저장 성공
+- 주문, 매수, 매도, 체결
+- OTP, SMS 수신, 토스 앱 승인, QR 승인 완료
+- 실시간 가격/순위의 정확값 검증
 
-## Risk-Based Priority
+## 3. 리스크 기반 우선순위
 
-- P0: home availability, search entry, stock lookup, account/auth boundary.
-- P0: public login entry, signin page availability, unauthenticated account guard, and private data non-exposure.
-- P1: chart/filter rendering, responsive layout, known error handling, footer compliance, QR/SMS login guidance.
-- P2: unsupported browser lab cases, broad accessibility audits, deep link edge cases.
+P0:
 
-## Suite Split
+- 홈 접근 가능성
+- 검색 진입 가능성
+- 대표 종목 검색 가능성
+- 공개 종목 상세 진입 가능성
+- 로그인 진입 가능성
+- 비로그인 내 계좌 보호
+- 개인 정보 비노출
 
-- Smoke: PR gate, public critical path only, under a few minutes.
-- BVT: build verification gate for public web readiness. Current Chromium headed result is `31 passed, 6 deselected`.
-- Regression: main branch or scheduled run, broader public UI coverage.
-- Critical path: home -> search -> stock detail -> quote area; home -> account -> auth gate.
-- Negative: unknown search, unsupported browser lab, network/API errors with mocks.
-- Accessibility: keyboard traversal and basic accessible names first; axe integration later.
-- Cross-browser: Chromium in PR; Firefox/WebKit in scheduled or nightly regression.
+P1:
 
-## Login Automation Scope
+- 차트/지수/시장 상태 표시
+- 모바일/데스크톱 렌더링
+- QR/문자 인증 안내
+- 빈 결과/오류 UX
+- 푸터 컴플라이언스 문구
+- 새로고침/뒤로가기 복구
 
-Production-safe login automation covers only public and non-sensitive behavior:
+P2:
 
-- Home login entry opens `/signin`.
-- Signin page exposes Toss app, phone number, QR, terms, and signup entry.
-- QR login guidance renders without application error.
-- App-less SMS login form renders without application error.
-- Empty SMS auth request fails safely or keeps the form stable.
-- Browser back from signin restores the public home.
-- Unauthenticated account entry routes to login/auth context.
-- Private account data is not exposed before authentication.
+- 미지원 브라우저 안내
+- 접근성 심화 검사
+- visual regression
+- 네트워크 오류 mock
+- 인증 후 스테이징 시나리오
 
-Out of scope for production BVT:
+## 4. Suite 정책
 
-- Successful login with real Toss app approval, SMS OTP, QR approval, device binding, or certificate flow.
-- Authenticated account page assertions.
-- Logout/session persistence/session expiry assertions.
-- Watchlist persistence or trading workflows.
+| Suite | 목적 | 실행 시점 | 실패 기준 |
+|---|---|---|---|
+| `bvt` | 빌드가 regression에 들어갈 수 있는지 빠르게 판정 | PR merge 전, 배포 전, 수동 검증 | 핵심 진입점 부재, 앱 오류, 기본 검색/로그인/시장 정보 실패 |
+| `smoke` | PR 차단용 최소 공개 핵심 경로 검증 | Pull Request | 홈/검색/로그인/모바일 핵심 경로 실패 |
+| `regression` | 공개 웹 회귀 검증 | main push, nightly | 공개 기능 회귀, 기본 UI 불안정 |
+| `login` | 로그인 성공 전 공개 로그인 UX 검증 | BVT와 regression | 로그인 진입/옵션/QR/SMS 폼 실패 |
+| `auth` | 비로그인 보호와 인증 경계 검증 | BVT와 regression | 개인 정보 노출 또는 인증 유도 실패 |
 
-These require staging support: test account, test identity data, deterministic OTP or auth bypass, storage state lifecycle policy, and strict handling of sensitive artifacts.
+## 5. BVT 완료 기준
 
-## Flaky Prevention
+BVT 완료라고 말하려면 다음 조건을 만족해야 합니다.
 
-- Use role/text-based locators first, CSS only as fallback.
-- Do not fall back to arbitrary `input` elements or plain text clicks for core flows.
-- Keep assertions in tests; keep Page Objects action-oriented.
-- Do not assert exact market prices or list order.
-- Do not use arbitrary sleeps. Wait for DOM readiness and specific visible UI.
-- Isolate browser context per test.
-- Attach screenshot, trace, and video on failure.
-- BVT/smoke critical paths must fail when required entry points disappear.
-- Mark only production-state dependent or optional public UI tests as conditional, skippable, or staging-required.
+- `test_cases/tossinvest_public_cases.yaml`에 BVT 후보 ID가 정의되어 있습니다.
+- `pytest -m bvt`로 자동 실행 가능한 테스트가 존재합니다.
+- 운영 공개 웹에서 검증 가능한 BVT 테스트가 모두 pass합니다.
+- 실패 시 screenshot, trace, video, Allure 결과가 남습니다.
+- CI 또는 로컬 headed 실행으로 실제 브라우저 검증이 가능합니다.
 
-## Anti-Patterns
+현재 기준:
 
-- Selecting by generated class names.
-- Waiting with `time.sleep`.
-- Asserting exact real-time prices.
-- Sharing login/session state across unrelated tests.
-- Mutating real user data in production.
-- Encoding business assumptions in fixtures instead of test data.
+```text
+pytest -q tests -m bvt --browser chromium
+31 passed, 6 deselected
+```
+
+## 6. 로그인 자동화 범위
+
+운영 공개 웹에서 자동화하는 로그인 범위:
+
+- 홈의 로그인 진입점 확인
+- `/signin` 진입 확인
+- 토스 앱 로그인 안내 확인
+- 휴대폰 번호 로그인 옵션 확인
+- QR 로그인 안내 확인
+- 토스 앱 없이 로그인하기 진입 확인
+- 문자 인증 로그인 폼 확인
+- 필수 입력 없이 인증 요청 시 안전한 상태 유지
+- 가입하기 진입점 확인
+- 로그인 페이지에서 뒤로가기 후 홈 복귀
+- 비로그인 내 계좌 진입 시 로그인/인증 컨텍스트 유도
+- 인증 전 계좌번호, 예수금, 평가금액 등 개인 정보 비노출
+
+운영 공개 웹에서 자동화하지 않는 로그인 범위:
+
+- 실제 로그인 성공
+- 토스 앱 승인 완료
+- QR 승인 완료
+- SMS/OTP 수신과 입력
+- 인증서/본인확인 완료
+- 로그인 후 세션 유지
+- 로그아웃
+- 인증 후 계좌 접근
+
+이 영역은 스테이징 계정, 테스트 본인확인 데이터, 고정 OTP 또는 인증 우회, storage state 관리 정책이 필요합니다.
+
+## 7. flaky 방지 전략
+
+- role, text, placeholder 기반 locator를 우선 사용합니다.
+- 핵심 검색 입력은 임의의 `input`으로 fallback하지 않습니다.
+- 검색 결과 클릭은 단순 텍스트가 아니라 링크/인터랙션 가능한 요소만 대상으로 합니다.
+- BVT/smoke 핵심 경로는 `skip`이 아니라 실패로 처리합니다.
+- 운영 공개 웹에서 선택적으로 노출되는 UI만 제한적으로 skip합니다.
+- 임의 sleep을 사용하지 않습니다.
+- `wait_for_any_visible`은 후보별 누적 대기가 아니라 전체 timeout budget으로 동작합니다.
+- 가격, 순위, 등락률 같은 실시간 값은 정확값으로 검증하지 않습니다.
+- 각 테스트는 독립 브라우저 context에서 실행합니다.
+- 실패 시 screenshot, trace, video, Allure attachment를 남깁니다.
+
+## 8. 현재 보류 항목
+
+| 항목 | 보류 이유 | 필요 조건 |
+|---|---|---|
+| 실제 로그인 성공 | 운영 자동화에 부적합 | 스테이징 계정, 인증 우회, 고정 OTP |
+| 계좌/거래 검증 | 민감 정보와 실거래 위험 | 테스트 계좌, 모의 주문, 데이터 초기화 |
+| 관심종목 저장 성공 | 인증 상태와 데이터 정리 필요 | 스테이징 세션, 관심종목 초기화 API |
+| Firefox/WebKit main regression | 토스증권 공개 웹은 Chrome/Edge 안내가 노출됨 | 공식 지원 범위 확인 후 lab/nightly 분리 |
+| visual regression | baseline 관리 필요 | 기준 이미지, 승인 프로세스 |
+| API fault injection | 운영에서 임의 오류 재현 불가 | mock 또는 스테이징 fault injection |
+
+## 9. 안티패턴
+
+- generated class selector에 의존
+- 모든 DOM 변화에 대해 무조건 skip 처리
+- 임의 sleep 사용
+- 실시간 가격/순위 정확값 assertion
+- 단순 텍스트를 클릭 대상으로 사용
+- 임의의 `input`에 검색어 입력
+- 운영 계정으로 실제 로그인/거래 자동화
+- 실패 증적 없이 테스트 종료
