@@ -131,3 +131,38 @@ pytest -q tests -m bvt --browser chromium
 pytest -q tests --browser chromium
 37 passed in 96.69s
 ```
+
+크레딧 소진전 마지막 대화내역
+
+• 전부 수정할 필요는 없습니다. 현재 로컬 main 기준으로 보면 리뷰 중 일부는 이미 반영됐고, 일부는 지금 당장 고칠 항목
+  | SearchPage.result_matching() 텍스트 기반 locator | 수정 권장 | 아직 단순 get_by_text()라 검색 결과 “항목”이 아니
+  라 텍스트 노출만으로 통과할 수 있습니다. /C:/dev/tossinvest-ui-tests/pages/search_page.py:34 |
+  |---|---|
+  | optional_public_ui marker 일관 적용 | skip이 남은 공개 선택 UI 테스트 2개에 이미 붙어 있습니다. /C:/dev/
+  tossinvest-ui-tests/tests/test_home.py:59, /C:/dev/tossinvest-ui-tests/tests/test_stock_detail.py:50 |
+  | BasePage.first_visible() 순차 대기 | 이미 wait_for_any_visible() 기반입니다. 리뷰 지적은 현재 코드 기준으로는 오
+  래된 내용입니다. /C:/dev/tossinvest-ui-tests/pages/base_page.py:42 |
+  | 실패 시 console log 수집 | 이미 page.on("console")로 수집하고 실패 시 Allure에 attach합니다. /C:/dev/tossinvest-
+  ui-tests/tests/conftest.py:87 |
+  | CI 병렬 -n auto | 이미 -n 2로 고정돼 있습니다. /C:/dev/tossinvest-ui-tests/.github/workflows/ui-tests.yml:120 |
+  | health check | 이미 smoke/regression 전에 있습니다. /C:/dev/tossinvest-ui-tests/.github/workflows/ui-
+  tests.yml:37, /C:/dev/tossinvest-ui-tests/.github/workflows/ui-tests.yml:107 |
+
+  당장 안 해도 됨
+  | 항목 | 판단 |
+  |---|---|
+  | conftest.py fixture 분리 | 아직 필수는 아닙니다. auth session, storage state, network log fixture가 들어갈 때 분
+  리하는 게 낫습니다. |
+  | tests/smoke, tests/bvt, tests/regression 물리 디렉터리 재구성 | 지금 37개 규모에서는 이동 비용이 큽니다. 테스트
+  가 더 늘거나 authenticated suite가 생길 때 하는 게 맞습니다. |
+  | Chromium + WebKit/Firefox matrix | 공개 서비스 지원 정책과 CI 비용을 감안하면 nightly/lab job부터 추가하는 게 현
+  실적입니다. main gate에 바로 넣을 필요는 낮습니다. |
+  | 모든 텍스트 locator 제거 | 서비스 DOM에 data-testid 계약이 없어서 전면 제거는 어렵습니다. 오탐 위험 큰 검색 결
+  과/클릭 경로부터 줄이는 방식이 맞습니다. |
+  | YAML 기반 generator | 지금은 allure.story 매핑으로 충분합니다. 데이터 반복 케이스가 늘 때 도입하면 됩니다. |
+
+  결론: 전부 수정 대상은 아니고, 지금 바로 손볼 만한 건 3개입니다.
+
+  1. SearchPage.result_matching()를 link/card 기반으로 좁히기
+  2. 대표 종목 검색 중복을 BVT/기능 테스트 중 하나로 정리하거나 helper로 통합하기
+  3. feedback_resolution.md의 console/network 관련 stale 문구 정리하기
