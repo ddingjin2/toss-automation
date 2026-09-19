@@ -136,17 +136,17 @@ pytest -q tests --browser chromium
 
 • 전부 수정할 필요는 없습니다. 현재 로컬 main 기준으로 보면 리뷰 중 일부는 이미 반영됐고, 일부는 지금 당장 고칠 항목
   | SearchPage.result_matching() 텍스트 기반 locator | 수정 권장 | 아직 단순 get_by_text()라 검색 결과 “항목”이 아니
-  라 텍스트 노출만으로 통과할 수 있습니다. /C:/dev/tossinvest-ui-tests/pages/search_page.py:34 |
+  라 텍스트 노출만으로 통과할 수 있습니다. /C:/dev/projects/tossinvest-ui-tests/pages/search_page.py:34 |
   |---|---|
   | optional_public_ui marker 일관 적용 | skip이 남은 공개 선택 UI 테스트 2개에 이미 붙어 있습니다. /C:/dev/
-  tossinvest-ui-tests/tests/test_home.py:59, /C:/dev/tossinvest-ui-tests/tests/test_stock_detail.py:50 |
+  tossinvest-ui-tests/tests/test_home.py:59, /C:/dev/projects/tossinvest-ui-tests/tests/test_stock_detail.py:50 |
   | BasePage.first_visible() 순차 대기 | 이미 wait_for_any_visible() 기반입니다. 리뷰 지적은 현재 코드 기준으로는 오
-  래된 내용입니다. /C:/dev/tossinvest-ui-tests/pages/base_page.py:42 |
+  래된 내용입니다. /C:/dev/projects/tossinvest-ui-tests/pages/base_page.py:42 |
   | 실패 시 console log 수집 | 이미 page.on("console")로 수집하고 실패 시 Allure에 attach합니다. /C:/dev/tossinvest-
   ui-tests/tests/conftest.py:87 |
-  | CI 병렬 -n auto | 이미 -n 2로 고정돼 있습니다. /C:/dev/tossinvest-ui-tests/.github/workflows/ui-tests.yml:120 |
-  | health check | 이미 smoke/regression 전에 있습니다. /C:/dev/tossinvest-ui-tests/.github/workflows/ui-
-  tests.yml:37, /C:/dev/tossinvest-ui-tests/.github/workflows/ui-tests.yml:107 |
+  | CI 병렬 -n auto | 이미 -n 2로 고정돼 있습니다. /C:/dev/projects/tossinvest-ui-tests/.github/workflows/ui-tests.yml:120 |
+  | health check | 이미 smoke/regression 전에 있습니다. /C:/dev/projects/tossinvest-ui-tests/.github/workflows/ui-
+  tests.yml:37, /C:/dev/projects/tossinvest-ui-tests/.github/workflows/ui-tests.yml:107 |
 
   당장 안 해도 됨
   | 항목 | 판단 |

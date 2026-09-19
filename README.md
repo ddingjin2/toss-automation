@@ -98,7 +98,7 @@ tossinvest-ui-tests/
 Windows PowerShell:
 
 ```powershell
-cd C:\dev\tossinvest-ui-tests
+cd C:\dev\projects\tossinvest-ui-tests
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
